@@ -1,0 +1,16 @@
+[Unit]
+Description=OpenWebRX+ DX Cluster spiderd bridge
+After=network.target
+
+[Service]
+Type=simple
+User=openwebrx
+Group=openwebrx
+WorkingDirectory=/opt/spiderd
+ExecStart=/opt/spiderd/venv/bin/python /opt/spiderd/spiderd.py --config /opt/spiderd/spiderd.conf
+Restart=always
+RestartSec=5
+Environment="PYTHONUNBUFFERED=1"
+
+[Install]
+WantedBy=multi-user.target
