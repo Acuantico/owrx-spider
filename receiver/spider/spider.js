@@ -20,16 +20,19 @@ Plugins.spider.init = function () {
 
   function buildDefaultWsUrls() {
     var host = location.host;
+    var hostname = location.hostname;
     var scheme = (location.protocol === 'https:' ? 'wss://' : 'ws://');
     var urls = [];
 
     if (location.protocol === 'http:') {
-      urls.push('ws://' + host + ':7373/spots');
+      // Local HTTP install: go direct to spiderd first, then proxy if present.
+      urls.push('ws://' + hostname + ':7373/spots');
       urls.push(scheme + host + '/spiderws/spots');
     } else {
+      // HTTPS install: prefer proxy, then fall back to direct WS if available.
       urls.push(scheme + host + '/spiderws/spots');
-      urls.push('wss://' + host + ':7373/spots');
-      urls.push('ws://' + host + ':7373/spots');
+      urls.push('wss://' + hostname + ':7373/spots');
+      urls.push('ws://' + hostname + ':7373/spots');
     }
 
     return uniqUrls(urls);

@@ -1,7 +1,9 @@
 window.spider_config_global = {
-  ws_url: "ws://localhost:7373/spots",
+  ws_urls: (location.protocol === "https:")
+    ? ["wss://" + location.host + "/spiderws/spots"]
+    : ["ws://" + location.hostname + ":7373/spots"],
   max_age_sec: 300,
   modes: ["CW","SSB","FT8"],
   enabled: true
 };
-Plugins.load('spider');
+Plugins.load("spider");
