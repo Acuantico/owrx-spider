@@ -1,0 +1,6 @@
+#!/command/execlineb -P
+# s6-rc service for the OpenWebRX+ Docker image: depends on "openwebrx",
+# so it starts after it and is stopped with the container.
+with-contenv
+cd /opt/owrx-spider
+python3 -m spiderd --data-dir /var/lib/openwebrx/spider run

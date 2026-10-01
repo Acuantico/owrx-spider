@@ -1,0 +1,23 @@
+{
+  "version": 8,
+  "receiver_name": "OpenWebRX+ spider laboratory",
+  "receiver_location": "Local container only",
+  "sdrs": {
+    "fake_rtl_tcp": {
+      "name": "Synthetic RTL-TCP",
+      "type": "rtl_tcp",
+      "enabled": true,
+      "remote": "fake-sdr:1234",
+      "profiles": {
+        "20m_lab": {
+          "name": "20m synthetic test",
+          "center_freq": 14175000,
+          "samp_rate": 250000,
+          "start_freq": 14074000,
+          "start_mod": "usb",
+          "tuning_step": 500
+        }
+      }
+    }
+  }
+}

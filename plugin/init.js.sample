@@ -1,0 +1,10 @@
+// OpenWebRX+ receiver plugins: htdocs/plugins/receiver/init.js
+//
+// If you already have an init.js, copy only the load line below into it.
+// The plugin has no dependencies.
+
+// Only needed when spiderd is not reachable at ws(s)://<this host>:7374/spots,
+// e.g. behind an HTTPS reverse proxy:
+// window.spider_config = { url: 'wss://sdr.example.org/spider/spots' };
+
+Plugins.load('spider');

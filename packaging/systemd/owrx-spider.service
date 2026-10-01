@@ -1,0 +1,30 @@
+# Spider DX cluster service for OpenWebRX+.
+#
+# PartOf + WantedBy tie it to openwebrx.service: it starts when OpenWebRX+
+# starts and stops/restarts together with it. install.sh sets User/Group to
+# the account OpenWebRX+ runs as, so its users.json can be read for logins.
+[Unit]
+Description=Spider DX cluster service for OpenWebRX+
+Documentation=https://github.com/Acuantico/owrx-spider
+After=network-online.target openwebrx.service
+Wants=network-online.target
+PartOf=openwebrx.service
+
+[Service]
+Type=simple
+User=openwebrx
+Group=openwebrx
+WorkingDirectory=/opt/owrx-spider
+ExecStart=/usr/bin/python3 -m spiderd --data-dir /var/lib/owrx-spider run
+Environment=PYTHONUNBUFFERED=1
+StateDirectory=owrx-spider
+StateDirectoryMode=0750
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=openwebrx.service

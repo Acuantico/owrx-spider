@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Spider DX cluster</title>
+<link rel="stylesheet" href="admin.css">
+<script src="admin.js" defer></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">Spider <span>DX cluster for OpenWebRX+</span></div>
+  <div class="who" id="who" hidden>
+    <span id="who-name"></span>
+    <button type="button" class="link" id="logout">Log out</button>
+  </div>
+</header>
+
+<main>
+  <section class="card narrow" id="login-card" hidden>
+    <h1>Administrator login</h1>
+    <p class="hint" id="login-hint">Use your OpenWebRX+ administrator account.</p>
+    <form id="login-form" autocomplete="on">
+      <label>User <input name="user" autocomplete="username" required></label>
+      <label>Password <input name="password" type="password" autocomplete="current-password" required></label>
+      <p class="error" id="login-error" hidden></p>
+      <button type="submit" class="primary">Log in</button>
+    </form>
+  </section>
+
+  <div id="app" hidden>
+    <section class="card" id="status-card">
+      <div class="status-head">
+        <span class="badge" id="st-badge">…</span>
+        <span id="st-detail"></span>
+      </div>
+      <dl class="stats">
+        <div><dt>Source</dt><dd id="st-source">–</dd></div>
+        <div><dt>Spots received</dt><dd id="st-spots">0</dd></div>
+        <div><dt>Last spot</dt><dd id="st-last">–</dd></div>
+        <div><dt>Receiver browsers</dt><dd id="st-browsers">0</dd></div>
+      </dl>
+    </section>
+
+    <form class="card" id="settings" novalidate>
+      <h2>Cluster connection</h2>
+      <label class="switch">
+        <input type="checkbox" name="enabled">
+        <span>Enabled: connect to the cluster and show spots on the receiver waterfall</span>
+      </label>
+
+      <fieldset class="segmented">
+        <legend>Source</legend>
+        <label><input type="radio" name="source" value="telnet"> Telnet DX cluster</label>
+        <label><input type="radio" name="source" value="mqtt"> MQTT broker</label>
+      </fieldset>
+
+      <div class="group" data-source="telnet">
+        <p class="hint">DXSpider, CC-Cluster or AR-Cluster node reachable by telnet. Most nodes require a valid callsign to log in.</p>
+        <div class="row">
+          <label class="grow">Host <input name="telnet.host" placeholder="dxc.example.org" autocomplete="off"></label>
+          <label class="small">Port <input name="telnet.port" type="number" min="1" max="65535"></label>
+        </div>
+        <div class="row">
+          <label class="grow">Callsign <input name="telnet.callsign" placeholder="EA1ABC" autocomplete="off"></label>
+          <label class="grow">Password <span class="opt">(only if the node asks)</span>
+            <input name="telnet.password" type="password" autocomplete="new-password"></label>
+        </div>
+      </div>
+
+      <div class="group" data-source="mqtt">
+        <p class="hint">Broker publishing JSON spots. URL schemes: <code>mqtt://</code>, <code>mqtts://</code>, <code>ws://</code>, <code>wss://</code>.</p>
+        <label>Broker URL <input name="mqtt.url" placeholder="wss://broker.example.org:443/mqtt" autocomplete="off"></label>
+        <label>Topics <span class="opt">(one per line, MQTT wildcards allowed)</span>
+          <textarea name="mqtt.topics" rows="3" spellcheck="false"></textarea></label>
+        <div class="row">
+          <label class="grow">User name <input name="mqtt.username" autocomplete="off"></label>
+          <label class="grow">Password <input name="mqtt.password" type="password" autocomplete="new-password"></label>
+        </div>
+        <div class="row">
+          <label class="grow">Client ID <span class="opt">(empty: random)</span> <input name="mqtt.client_id" autocomplete="off"></label>
+          <label class="small">QoS
+            <select name="mqtt.qos"><option value="0">0</option><option value="1">1</option><option value="2">2</option></select>
+          </label>
+        </div>
+      </div>
+
+      <h2>Waterfall display</h2>
+      <div class="row">
+        <label class="small">Spot lifetime (minutes) <input name="display.minutes" type="number" min="1" max="120"></label>
+      </div>
+      <fieldset class="checks">
+        <legend>Show these spots</legend>
+        <label><input type="checkbox" name="group" value="CW"> <i class="dot cw"></i> CW</label>
+        <label><input type="checkbox" name="group" value="DIGITAL"> <i class="dot digital"></i> Digital</label>
+        <label><input type="checkbox" name="group" value="PHONE"> <i class="dot phone"></i> Phone</label>
+      </fieldset>
+
+      <ul class="error" id="form-errors" hidden></ul>
+      <div class="actions">
+        <span class="saved" id="saved" hidden>Saved</span>
+        <button type="submit" class="primary">Save</button>
+      </div>
+    </form>
+
+    <section class="card">
+      <h2>Latest spots</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>UTC</th><th>kHz</th><th>DX</th><th>Mode</th><th>Spotter</th><th>Comment</th></tr></thead>
+          <tbody id="spots"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <details>
+        <summary>Service log</summary>
+        <pre id="log"></pre>
+      </details>
+      <p class="hint" id="version"></p>
+    </section>
+  </div>
+</main>
+</body>
+</html>

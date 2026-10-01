@@ -1,0 +1,66 @@
+# Isolated laboratory: a clean OpenWebRX+ with the spider plugin + spiderd,
+# a synthetic SDR, a fake telnet DX cluster and a local MQTT broker.
+# Nothing here touches the host's own OpenWebRX+ installations.
+#
+#   ./prepare.sh && docker compose up -d
+#   receiver:   http://127.0.0.1:18174/
+#   spiderd:    http://127.0.0.1:7374/admin/   (admin / spider-lab-pass)
+name: owrx-spider-lab
+
+services:
+  openwebrx:
+    image: slechev/openwebrxplus:1.2.125
+    container_name: owrx-spider-lab
+    depends_on: [fake-sdr]
+    ports:
+      - "127.0.0.1:18174:8073"
+      - "127.0.0.1:7374:7374"
+    environment:
+      TZ: Europe/Madrid
+      OPENWEBRX_ADMIN_USER: admin
+      OPENWEBRX_ADMIN_PASSWORD: spider-lab-pass
+    volumes:
+      - ./runtime/etc:/etc/openwebrx
+      - ./runtime/var:/var/lib/openwebrx
+      # --- what a Docker user adds to run owrx-spider (see README) ---
+      - ../plugin/spider:/usr/lib/python3/dist-packages/htdocs/plugins/receiver/spider:ro
+      - ./init.js:/usr/lib/python3/dist-packages/htdocs/plugins/receiver/init.js:ro
+      - ../spiderd:/opt/owrx-spider/spiderd:ro
+      - ../packaging/s6/owrx-spider:/etc/s6-overlay/s6-rc.d/owrx-spider:ro
+      - ../packaging/s6/user-contents.d-owrx-spider:/etc/s6-overlay/s6-rc.d/user/contents.d/owrx-spider:ro
+    tmpfs:
+      - /tmp:mode=1777
+    restart: "no"
+
+  fake-sdr:
+    image: python:3.13-alpine
+    container_name: owrx-spider-lab-sdr
+    command: ["python3", "/lab/fake_rtl_tcp.py"]
+    volumes:
+      - ./fake_rtl_tcp.py:/lab/fake_rtl_tcp.py:ro
+    restart: "no"
+
+  fake-cluster:
+    image: python:3.13-alpine
+    container_name: owrx-spider-lab-cluster
+    command: ["python3", "-u", "/lab/fake_cluster.py"]
+    volumes:
+      - ./fake_cluster.py:/lab/fake_cluster.py:ro
+    restart: "no"
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: owrx-spider-lab-mqtt
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./runtime/mosquitto/passwd:/mosquitto/config/passwd:ro
+    restart: "no"
+
+  mqtt-publisher:
+    image: python:3.13-alpine
+    container_name: owrx-spider-lab-pub
+    depends_on: [mosquitto]
+    command: ["python3", "-u", "/lab/mqtt_publisher.py"]
+    volumes:
+      - ./mqtt_publisher.py:/lab/mqtt_publisher.py:ro
+    restart: "no"
